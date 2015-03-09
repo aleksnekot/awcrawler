@@ -23,7 +23,7 @@ object SearchDbSchema extends Schema {
     k.id is autoIncremented("ID_SEQ")
   ))
 
-  def init() = {
+  def init(updateSchemaByConfig: Boolean = false) = {
     import java.util.Locale
     Locale.setDefault(Locale.ENGLISH)
 
@@ -34,7 +34,6 @@ object SearchDbSchema extends Schema {
     val url = properties.getProperty("url")
     val username = properties.getProperty("username")
     val password = properties.getProperty("password")
-    val behavior = properties.getProperty("behavior")
 
     import org.squeryl.SessionFactory
     Class.forName(driverClassName)
@@ -44,13 +43,16 @@ object SearchDbSchema extends Schema {
         java.sql.DriverManager.getConnection(url, username, password),
         new OracleAdapter))
 
-    behavior match {
-      case "create" => inTransaction {
-        create
-      }
-      case "reset" => inTransaction {
-        webPages.deleteWhere(_ => 1 === 1)
-        keyWords.deleteWhere(_ => 1 === 1)
+    if (updateSchemaByConfig) {
+      val behavior = properties.getProperty("behavior")
+      behavior match {
+        case "create" => inTransaction {
+          create
+        }
+        case "reset" => inTransaction {
+          webPages.deleteWhere(_ => 1 === 1)
+          keyWords.deleteWhere(_ => 1 === 1)
+        }
       }
     }
   }

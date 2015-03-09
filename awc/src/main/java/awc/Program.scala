@@ -16,7 +16,7 @@ object Program {
     val arg = args(0)
 
     arg match {
-      case "--crawler" => SearchDbSchema.init(); startWebCrawl()
+      case "--crawler" => SearchDbSchema.init(updateSchemaByConfig = true); startWebCrawl()
       case "--service" => SearchDbSchema.init(); startRestService()
     }
   }
